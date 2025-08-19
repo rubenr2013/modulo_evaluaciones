@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Evaluación - SENA APP{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+                    <h3 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i> Agregar Evaluación
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Aprendiz -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.aprendiz.label }}</label>
+                                <select class="form-select" name="{{ form.aprendiz.name }}" id="{{ form.aprendiz.id_for_label }}">
+                                    <option value="" selected disabled>Seleccione...</option>
+                                    {% for aprendiz in form.aprendiz.field.queryset %}
+                                        <option value="{{ aprendiz.id }}" {% if aprendiz.id|stringformat:"s" == form.aprendiz.value|stringformat:"s" %}selected{% endif %}>{{ aprendiz }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de evaluación -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.tipo.label }}</label>
+                                <select class="form-select" name="{{ form.tipo.name }}" id="{{ form.tipo.id_for_label }}">
+                                    {% for choice in form.tipo.field.choices %}
+                                        <option value="{{ choice.0 }}" {% if choice.0 == form.tipo.value|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                                <textarea class="form-control" name="{{ form.descripcion.name }}" id="{{ form.descripcion.id_for_label }}" rows="3" required>{{ form.descripcion.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.fecha.label }}</label>
+                                <input type="date" class="form-control" name="{{ form.fecha.name }}" id="{{ form.fecha.id_for_label }}" value="{% if form.fecha.value %}{{ form.fecha.value|date:'Y-m-d' }}{% endif %}" required>
+                            </div>
+                        </div>
+
+                        <!-- Nota -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.nota.label }}</label>
+                                <input type="number" step="0.1" min="0" max="5" class="form-control" name="{{ form.nota.name }}" id="{{ form.nota.id_for_label }}" value="{{ form.nota.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.estado.label }}</label>
+                                <select class="form-select" name="{{ form.estado.name }}" id="{{ form.estado.id_for_label }}">
+                                    {% for choice in form.estado.field.choices %}
+                                        <option value="{{ choice.0 }}" {% if choice.0 == form.estado.value|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.observaciones.label }}</label>
+                                <textarea class="form-control" name="{{ form.observaciones.name }}" id="{{ form.observaciones.id_for_label }}" rows="3">{{ form.observaciones.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'evaluaciones:lista_evaluaciones' %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Guardar Evaluación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mensajes de éxito/error -->
+{% if messages %}
+<div class="container my-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
