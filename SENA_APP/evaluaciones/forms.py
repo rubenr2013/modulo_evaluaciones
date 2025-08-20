@@ -15,9 +15,9 @@ class EvaluacionForm(forms.ModelForm):
             'observaciones': "Observaciones",
         }
         widgets = {
-            'descripcion': forms.Textarea(attrs={'rows': 3}),
-            'fecha': forms.DateInput(attrs={'type': 'date'}),
-            'observaciones': forms.Textarea(attrs={'rows': 3}),
+            'descripcion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'observaciones': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
     def clean_nota(self):

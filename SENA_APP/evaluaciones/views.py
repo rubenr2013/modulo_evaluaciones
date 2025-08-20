@@ -9,11 +9,14 @@ from django.contrib import messages
 from .models import Evaluacion
 from .forms import EvaluacionForm
 
+from django.shortcuts import render
+
+
 def lista_evaluaciones(request):
     evaluaciones = Evaluacion.objects.all().order_by('-fecha')
     context = {
         'evaluaciones': evaluaciones,
-        'total_evaluaciones': evaluaciones.count(),
+        'total_e evaluaciones': evaluaciones.count(),  # Asegúrate de que esta línea no tenga errores de sintaxis
     }
     return render(request, 'evaluaciones/lista_evaluaciones.html', context)
 
@@ -23,6 +26,7 @@ class EvaluacionFormView(generic.FormView):
     success_url = reverse_lazy('evaluaciones:lista_evaluaciones')
 
     def form_valid(self, form):
+        form.save()
         response = super().form_valid(form)
         messages.success(self.request, f'La evaluación para {form.instance.aprendiz} ha sido registrada exitosamente.')
         return response
