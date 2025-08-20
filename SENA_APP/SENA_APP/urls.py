@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('aprendices.urls')),
     path('instructores', include('instructores.urls')),
     path('programas', include('programas.urls')),
+    path('evaluaciones/', include('evaluaciones.urls')),
 ]
 
 # Personalización del panel administrativo
