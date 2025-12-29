@@ -2,32 +2,40 @@ from django import forms
 from .models import Aprendiz
 
 
-class AprendizForm(forms.Form):
-    documento_identidad = forms.CharField(max_length=20, label="Documento de Identidad")
-    nombre = forms.CharField(max_length=100, label="Nombre")
-    apellido = forms.CharField(max_length=100, label="Apellido")
-    telefono = forms.CharField(max_length=10, label="Teléfono", required=False)
-    correo = forms.EmailField(label="Correo Electrónico", required=False)
-    fecha_nacimiento = forms.DateField(label="Fecha de Nacimiento")
-    ciudad = forms.CharField(max_length=100, required=False, label="Ciudad")
-    
-    
-    #Validaciones personalizadas 
-    def clean(self):
-        cleaned_data = super().clean()
-        documento = cleaned_data.get('documento_identidad')
-        nombre = cleaned_data.get('nombre')
-        apellido = cleaned_data.get('apellido')
+class AprendizForm(forms.ModelForm):
+    class Meta:
+        model = Aprendiz
+        fields = ['documento_identidad', 'nombre', 'apellido', 'telefono', 'correo', 'fecha_nacimiento', 'ciudad']
+        labels = {
+            'documento_identidad': 'Documento de Identidad',
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'telefono': 'Teléfono',
+            'correo': 'Correo Electrónico',
+            'fecha_nacimiento': 'Fecha de Nacimiento',
+            'ciudad': 'Ciudad',
+        }
+        widgets = {
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'documento_identidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control'}),
+            'ciudad': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
-        if not documento or not nombre or not apellido:
-            raise forms.ValidationError("Todos los campos son obligatorios.")
-
-        return cleaned_data
-    
     def clean_documento_identidad(self):
-        documento = self.cleaned_data['documento_identidad']
-        if not documento.isdigit():
+        documento = self.cleaned_data.get('documento_identidad')
+        if documento and not documento.isdigit():
             raise forms.ValidationError("El documento debe contener solo números.")
+        # Verificar si el documento ya existe (excepto cuando se está editando)
+        if self.instance.pk:  # Si es una edición
+            if Aprendiz.objects.exclude(pk=self.instance.pk).filter(documento_identidad=documento).exists():
+                raise forms.ValidationError("Ya existe un aprendiz con este documento de identidad.")
+        else:  # Si es una creación
+            if Aprendiz.objects.filter(documento_identidad=documento).exists():
+                raise forms.ValidationError("Ya existe un aprendiz con este documento de identidad.")
         return documento
 
     def clean_telefono(self):
@@ -35,15 +43,3 @@ class AprendizForm(forms.Form):
         if telefono and not telefono.isdigit():
             raise forms.ValidationError("El teléfono debe contener solo números.")
         return telefono
-    
-    #Crear un método para guardar los datos del formulario en la base de datos
-    def save(self):
-        Aprendiz.objects.create(
-            documento_identidad=self.cleaned_data['documento_identidad'],
-            nombre=self.cleaned_data['nombre'],
-            apellido=self.cleaned_data['apellido'],
-            telefono=self.cleaned_data.get('telefono'),
-            correo=self.cleaned_data.get('correo'),
-            fecha_nacimiento=self.cleaned_data['fecha_nacimiento'],
-            ciudad=self.cleaned_data.get('ciudad')
-        )

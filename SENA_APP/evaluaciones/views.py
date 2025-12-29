@@ -1,7 +1,3 @@
-
-from django.shortcuts import render
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
 from django.urls import reverse_lazy
@@ -9,14 +5,12 @@ from django.contrib import messages
 from .models import Evaluacion
 from .forms import EvaluacionForm
 
-from django.shortcuts import render
-
 
 def lista_evaluaciones(request):
     evaluaciones = Evaluacion.objects.all().order_by('-fecha')
     context = {
         'evaluaciones': evaluaciones,
-        'total_e evaluaciones': evaluaciones.count(),  # Asegúrate de que esta línea no tenga errores de sintaxis
+        'total_evaluaciones': evaluaciones.count(),
     }
     return render(request, 'evaluaciones/lista_evaluaciones.html', context)
 

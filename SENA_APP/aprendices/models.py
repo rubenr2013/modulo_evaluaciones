@@ -1,15 +1,15 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Aprendiz(models.Model):
     documento_identidad = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=10, null=True)
-    correo = models.EmailField(null=True)
+    telefono = models.CharField(max_length=10, null=True, blank=True)
+    correo = models.EmailField(null=True, blank=True)
     fecha_nacimiento = models.DateField()
-    ciudad = models.CharField(max_length=100, null=True)
-    # programa = models.CharField(max_length=100)
+    ciudad = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         verbose_name = "Aprendiz"
@@ -33,7 +33,7 @@ class Curso(models.Model):
         ('SUS', 'Suspendido'),
     ]
 
-    codigo = models.CharField(max_length=30,unique=True,verbose_name="Código del Curso")
+    codigo = models.CharField(max_length=30, unique=True, verbose_name="Código del Curso")
     nombre = models.CharField(max_length=200, verbose_name="Nombre del Curso")
     programa = models.ForeignKey('programas.Programa', on_delete=models.CASCADE, verbose_name="Programa de Formación")
     instructor_coordinador = models.ForeignKey('instructores.Instructor', on_delete=models.CASCADE, related_name='cursos_coordinados', verbose_name="Instructor Coordinador")
@@ -52,6 +52,17 @@ class Curso(models.Model):
         verbose_name = "Curso"
         verbose_name_plural = "Cursos"
         ordering = ['-fecha_inicio']
+
+    def clean(self):
+        super().clean()
+        if self.fecha_inicio and self.fecha_fin and self.fecha_fin <= self.fecha_inicio:
+            raise ValidationError({
+                'fecha_fin': 'La fecha de finalización debe ser posterior a la fecha de inicio.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
